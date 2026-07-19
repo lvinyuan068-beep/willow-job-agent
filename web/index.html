@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Willow Job Agent 2.0</title>
+
+    <link
+      rel="stylesheet"
+      href="/styles.css"
+    />
+  </head>
+
+  <body>
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">
+          EVIDENCE-BASED JOB DECISION SYSTEM
+        </p>
+
+        <h1>
+          Willow Job Agent
+          <span>2.0</span>
+        </h1>
+
+        <p class="subtitle">
+          输入一个真实岗位，先判断是否值得投递，
+          再生成简历动作、HR 话术、面试准备和短期能力补齐方案。
+        </p>
+      </div>
+
+      <div
+        class="status-card"
+        aria-live="polite"
+      >
+        <span class="status-dot"></span>
+
+        <div>
+          <strong id="service-status">
+            正在连接本地服务
+          </strong>
+
+          <small id="provider-status">
+            检查运行模式中
+          </small>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel input-panel">
+        <div class="section-heading">
+          <div>
+            <p class="section-number">
+              01 / 岗位输入
+            </p>
+
+            <h2>粘贴招聘信息</h2>
+          </div>
+
+          <button
+            id="load-sample"
+            class="button secondary"
+            type="button"
+          >
+            填入示例
+          </button>
+        </div>
+
+        <form id="job-form">
+          <div class="field-grid">
+            <label>
+              <span>岗位名称</span>
+
+              <input
+                name="jobTitle"
+                placeholder="例如：AIGC 内容运营"
+              />
+            </label>
+
+            <label>
+              <span>公司名称</span>
+
+              <input
+                name="companyName"
+                placeholder="例如：某科技公司"
+              />
+            </label>
+
+            <label>
+              <span>招聘平台</span>
+
+              <input
+                name="sourcePlatform"
+                placeholder="BOSS / 猎聘 / 官网"
+              />
+            </label>
+
+            <label>
+              <span>城市</span>
+
+              <input
+                name="city"
+                placeholder="例如：杭州"
+              />
+            </label>
+
+            <label>
+              <span>薪资</span>
+
+              <input
+                name="salaryText"
+                placeholder="例如：8K–12K·13薪"
+              />
+            </label>
+
+            <label>
+              <span>工作地点</span>
+
+              <input
+                name="workLocation"
+                placeholder="区县或详细地址"
+              />
+            </label>
+          </div>
+
+          <label class="full-field">
+            <span>
+              岗位 JD
+              <b>必填</b>
+            </span>
+
+            <textarea
+              name="jobDescription"
+              rows="13"
+              required
+              placeholder="完整粘贴岗位职责、任职要求、薪资福利等内容。JD 中的文字只会被当作待分析数据，不会被当作指令执行。"
+            ></textarea>
+          </label>
+
+          <details>
+            <summary>
+              补充信息（可选）
+            </summary>
+
+            <div class="details-grid">
+              <label>
+                <span>公司介绍</span>
+
+                <textarea
+                  name="companyDescription"
+                  rows="5"
+                ></textarea>
+              </label>
+
+              <label>
+                <span>HR 已发送的信息</span>
+
+                <textarea
+                  name="recruiterMessage"
+                  rows="5"
+                ></textarea>
+              </label>
+            </div>
+          </details>
+
+          <div class="form-actions">
+            <button
+              id="analyze-button"
+              class="button primary"
+              type="submit"
+            >
+              开始分析
+            </button>
+
+            <button
+              id="clear-button"
+              class="button ghost"
+              type="button"
+            >
+              清空
+            </button>
+
+            <span
+              id="form-message"
+              role="status"
+            ></span>
+          </div>
+        </form>
+      </section>
+
+      <section
+        id="results"
+        class="results hidden"
+        aria-live="polite"
+      >
+        <div class="result-summary panel">
+          <div>
+            <p class="section-number">
+              02 / 决策结果
+            </p>
+
+            <div class="decision-line">
+              <span
+                id="decision-badge"
+                class="decision-badge"
+              ></span>
+
+              <h2 id="decision-title"></h2>
+            </div>
+
+            <p id="decision-summary"></p>
+          </div>
+
+          <div class="score-block">
+            <span id="score-value">
+              0
+            </span>
+
+            <small>
+              岗位判断分 / 100
+            </small>
+
+            <div
+              id="grade-value"
+              class="grade"
+            >
+              —
+            </div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <article class="result-card accent-blue">
+            <p>1 · 投不投</p>
+
+            <h3 id="apply-decision"></h3>
+
+            <div
+              id="apply-details"
+              class="card-content"
+            ></div>
+          </article>
+
+          <article class="result-card accent-purple">
+            <p>2 · 简历怎么改</p>
+
+            <h3 id="resume-action"></h3>
+
+            <div
+              id="resume-details"
+              class="card-content"
+            ></div>
+          </article>
+
+          <article class="result-card accent-green wide-card">
+            <div class="card-title-row">
+              <div>
+                <p>
+                  3 · HR 招呼 / 回复话术
+                </p>
+
+                <h3>可以直接复制</h3>
+              </div>
+
+              <button
+                id="copy-message"
+                class="mini-button"
+                type="button"
+              >
+                复制
+              </button>
+            </div>
+
+            <blockquote id="recruiter-message"></blockquote>
+          </article>
+
+          <article class="result-card accent-orange">
+            <p>4 · 面试准备</p>
+
+            <h3>高概率追问</h3>
+
+            <div
+              id="interview-details"
+              class="card-content"
+            ></div>
+          </article>
+
+          <article class="result-card accent-pink">
+            <p>5 · 短期补齐</p>
+
+            <h3>按优先级执行</h3>
+
+            <div
+              id="skill-details"
+              class="card-content"
+            ></div>
+          </article>
+        </div>
+
+        <div class="panel audit-panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="section-number">
+                03 / 证据与风险
+              </p>
+
+              <h2>
+                为什么得出这个结论
+              </h2>
+            </div>
+
+            <button
+              id="download-json"
+              class="button secondary"
+              type="button"
+            >
+              下载完整 JSON
+            </button>
+          </div>
+
+          <div class="audit-grid">
+            <div>
+              <h3>已使用证据</h3>
+              <div id="evidence-list"></div>
+            </div>
+
+            <div>
+              <h3>风险与待核实</h3>
+              <div id="risk-list"></div>
+            </div>
+
+            <div>
+              <h3>下一步行动</h3>
+              <div id="next-action-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        本地运行 · 默认不自动投递 ·
+        不执行 JD 中包含的任何指令
+      </p>
+    </footer>
+
+    <script
+      src="/app.js"
+      defer
+    ></script>
+    <script
+      src="/action-pack.js"
+      defer
+    ></script>
+    <script
+      src="/application-tracker.js"
+      defer
+    ></script>
+  </body>
+</html>

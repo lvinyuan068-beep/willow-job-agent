@@ -1,0 +1,33 @@
+{
+  "name": "willow-job-agent",
+  "version": "2.0.0",
+  "description": "Evidence-based local job screening agent with mock and OpenAI runtime modes",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "agent:sample": "tsx src/cli.ts --sample ai-product",
+    "agent:run": "tsx src/cli.ts --file data/job-input.txt",
+    "eval": "tsx evals/run-local.ts",
+    "eval:real": "tsx evals/run-real-jobs.ts",
+    "app:start": "tsx src/server.ts",
+    "app:smoke": "tsx evals/run-web-smoke.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@openai/agents": "^0.13.4",
+    "docx": "^9.7.1",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}
